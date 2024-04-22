@@ -1,0 +1,123 @@
+--Create Schema--
+CREATE schema TIL_PORTFOLIO_PROJECTS.paves_schema;
+
+-- Create table--
+create table TIL_PORTFOLIO_PROJECTS.paves_schema.lego_inventories
+(
+    id integer
+    ,version integer
+    ,set_num varchar(16)
+);
+create table TIL_PORTFOLIO_PROJECTS.paves_schema.lego_inventories_set
+(
+    inventory_id integer
+    ,set_num varchar(10)
+    ,quantity integer
+);
+create table TIL_PORTFOLIO_PROJECTS.paves_schema.lego_inventory_parts
+(
+    inventory_id integer
+    ,part_num varchar(15)
+    ,color_id integer
+    ,quantity integer
+    ,is_spare varchar(1)
+);
+create table TIL_PORTFOLIO_PROJECTS.paves_schema.lego_colors
+(
+    id integer
+    ,name varchar(28)
+    ,rgb varchar(6) 
+    ,is_trans varchar(1)
+);
+create table TIL_PORTFOLIO_PROJECTS.paves_schema.lego_sets
+(
+    set_num varchar(16)
+    ,name varchar(95)
+    , year integer
+    , theme_id integer
+    , num_parts integer
+);
+create table TIL_PORTFOLIO_PROJECTS.paves_schema.lego_themes
+(
+    id integer
+    , name varchar(32)
+    , parent_id integer
+);
+create table til_portfolio_projects.paves_schema.lego_parts
+(
+    part_num varchar(15)
+    ,name varchar(223)
+    ,part_cat_id integer
+);
+create table til_portfolio_projects.paves_schema.lego_parts_categories
+(
+    id integer
+    , name varchar(44)
+);
+
+--insert data into table--
+insert into til_portfolio_projects.paves_schema.lego_inventories
+(
+    select *
+    from til_portfolio_projects.staging.lego_inventories
+);
+insert into til_portfolio_projects.paves_schema.lego_inventories_set
+(
+    select *
+    from til_portfolio_projects.staging.lego_inventory_sets
+);
+insert into til_portfolio_projects.paves_schema.lego_inventory_parts
+(
+    select *
+    from til_portfolio_projects.staging.lego_inventory_parts
+);
+insert into til_portfolio_projects.paves_schema.lego_colors
+(
+    select *
+    from til_portfolio_projects.staging.lego_colors
+);
+insert into til_portfolio_projects.paves_schema.lego_sets
+(
+    select *
+    from til_portfolio_projects.staging.lego_sets
+);
+insert into til_portfolio_projects.paves_schema.lego_themes
+(
+    select *
+    from til_portfolio_projects.staging.lego_themes
+);
+insert into til_portfolio_projects.paves_schema.lego_parts
+(
+    select*
+    from til_portfolio_projects.staging.lego_parts
+);
+insert into til_portfolio_projects.paves_schema.lego_parts_categories
+(
+    select *
+    from til_portfolio_projects.staging.lego_part_categories
+);
+use til_portfolio_projects.paves_schema;
+
+-- Set primary keys--
+alter table lego_inventories add primary key (ID);
+alter table lego_sets add primary key (set_num);
+alter table lego_colors add primary key (ID);
+alter table lego_parts add primary key (part_num);
+alter table lego_themes add primary key (ID);
+alter table lego_parts_categories add primary key (id);
+
+--Set Foreign Keys--
+alter table lego_inventories_set add foreign key (inventory_id) references lego_inventories(ID);
+alter table lego_inventories_set alter set_num varchar(16);
+alter table lego_inventories_set add foreign key (set_num) references lego_sets(set_num);
+
+alter table lego_inventory_parts add foreign key (inventory_id) references lego_inventories (id);
+alter table lego_inventory_parts add foreign key (part_num) references lego_parts(part_num);
+alter table lego_inventory_parts add foreign key (color_id) references lego_colors(ID);
+
+alter table lego_inventories add foreign key (set_num) references lego_sets(set_num);
+
+alter table lego_sets add foreign key (theme_id) references lego_themes(ID);
+
+alter table lego_parts add foreign key (part_cat_id) references lego_parts_categories(ID);
+
