@@ -1,0 +1,47 @@
+--Select parts which are unique to one set only--
+Create view unique_sets as
+with UP as
+(
+select LP.name
+    ,LP.part_num
+    ,count (distinct LI.set_num) as number_of_sets
+from lego_parts LP
+inner join lego_inventory_parts LIP
+   on LIP.part_num= LP.part_num
+inner join lego_inventories LI
+   on LI.ID = LIP.inventory_id
+inner join lego_parts_categories LPC
+    on LPC.ID = LP.PART_CAT_ID
+group by LP.part_num
+    ,LP.name
+having number_of_sets = 1
+)
+--Count the number of parts and unique parts in each set--
+select LS.name
+    ,LT.name as theme_name
+    ,LI.set_num
+    ,LS.year
+    ,count (distinct LP.part_num) as no_of_unique_parts_in_sets
+    ,count (LS.set_num) No_of_parts_in_sets
+    ,no_of_unique_parts_in_sets/No_of_parts_in_sets as uniqueness
+from lego_parts LP
+inner join LEGO_INVENTORY_PARTS LIP
+    on LP.part_num = LIP.part_num
+inner join lego_colors LC
+    on LIP.color_id = LC.id
+inner join lego_inventories LI
+    on LI.id = LIP.inventory_id
+inner join lego_sets LS
+    on LS.set_num = LI.set_num
+left join lego_themes LT
+    on LT.id =LS.theme_id
+left join UP
+    on UP.part_num = LP.part_num
+group by LI.set_num
+    ,LS.name
+    ,LS.year
+    ,LT.name
+;
+--View table--
+select *
+from unique_sets
